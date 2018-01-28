@@ -113,6 +113,7 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(PROJECT_ROOT, "templates"),
             os.path.join(PROJECT_ROOT, "frontend/build"),
+
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -139,18 +140,18 @@ WSGI_APPLICATION = 'setting.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'cutrect',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': 'mysql_tripitaka',
-        'PORT': '3307',
-        'OPTIONS': {'charset': 'utf8mb4', 'init_command': 'SET default_storage_engine=InnoDB'}
+             'ENGINE': 'django.db.backends.sqlite3',
+             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
-    # 'test': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
+ # 'test': {
+ #   'ENGINE': 'django.db.backends.mysql',
+ #        'NAME': 'cutrect',
+ #        'USER': 'root',
+ #        'PASSWORD': 'root',
+ #        'HOST': 'mysql_tripitaka',
+ #        'PORT': '3307',
+ #        'OPTIONS': {'charset': 'utf8mb4', 'init_command': 'SET default_storage_engine=InnoDB'}
+ #     }
 }
 
 

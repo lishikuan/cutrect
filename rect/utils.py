@@ -86,7 +86,7 @@ def parseBatch(batch):
     org = int(batch.org)
     parser = None
     if org == ORGGroup.ALI:
-        parser = HuaNanBatchParser(batch=batch) #AliBatchParser(batch=batch)
+        parser = AliBatchParser(batch=batch)
     elif org == ORGGroup.BAIDU:
         parser = HuaNanBatchParser(batch=batch) #BaiDuBatchParser(batch=batch)
     elif org == ORGGroup.HN:

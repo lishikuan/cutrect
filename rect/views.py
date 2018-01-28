@@ -7,11 +7,15 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import generics, mixins, viewsets, views
 from rest_framework.renderers import JSONRenderer
 
-import json
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
+import json
+import os
 
 from rect.serializers import *
-from rect.forms import ScheduleForm, BatchModelForm
+from rect.forms import ScheduleForm, BatchModelForm,OCRDataModelForm
 from utils.mixin_utils import LoginRequiredMixin
 
 
@@ -68,7 +72,13 @@ class PageTaskViewSet(mixins.RetrieveModelMixin,
     serializer_class = PageTaskSerializer
 
 
+class TestOCRViewSet(viewsets.ModelViewSet):
+    queryset = OCRData.objects.all()
+    serializer_class = OCRDataSerializer
 
+
+
+    print('nice')
 #class CreateScheduleView(LoginRequiredMixin, View):
 class CreateScheduleView(View):
 
@@ -128,3 +138,106 @@ class UploadBatchView(View):
 #     """
 #     queryset = Group.objects.all()
 #     serializer_class = GroupSerializer
+
+
+@api_view(['POST', 'GET'])
+def add_ocr_tab(request, *args):
+    dict = {}
+    from rect import get_ocr_text
+    import urllib
+    from base64 import b64encode
+    if request.method == 'GET':
+        res = request.GET
+        return Response({
+            'test': res,
+        })
+
+    elif request.method == 'POST':
+        jsonData = {}
+        requestJson = json.loads(request.body.decode('utf-8'))
+
+        imagePath = None
+        imageData = None
+        if 'img_url' in requestJson:
+            imagePath = requestJson['img_url']
+        if 'img_data' in requestJson:
+            imageData = requestJson['img_data']
+        if len(imageData) > 0:
+            picPath = imageData
+            imgBase64 = picPath
+            respData = get_ocr_text.testAPI(imgBase64)
+            status = -1
+            msg = 'error'
+            data = None
+            id = None
+            if 'code' in respData:
+                status = respData['code']
+            if 'message' in respData:
+                msg = respData['message']
+            if 'data' in respData:
+                # data = respData['data']
+                if 'id' in requestJson:
+                    id = requestJson['id']
+                rects = get_ocr_text.jsonToNewJson(respData)
+                # if 'rect' in requestJson:
+                #     rect = requestJson['rect']
+                #     if len(rect) >= 4:
+                #         x1 = rect[0]
+                #         y1 = rect[1]
+                #         x2 = rect[2]
+                #         y2 = rect[3]
+                #         #修改坐标
+                #         for x in range(len(rects)):
+                #             rectDic = rects[x]
+                #             rectDic['x1'] = x1
+                #             rectDic['y1'] = y1
+                #             rectDic['x2'] = x2
+                #             rectDic['y2'] = y2
+                #             rects[x] = rectDic
+                dataDic = {'id': id, 'rects': rects}
+                data = str(dataDic)
+            jsonData = {'status': status, 'msg': msg, 'data': data}
+        else:
+            picPath = imagePath
+            image = urllib.request.urlopen(picPath).read()
+            imgBase64 = b64encode(image)
+            respData = get_ocr_text.testAPI(imgBase64)
+            status = -1
+            msg = 'error'
+            data = None
+            id = None
+            if 'code' in respData:
+                status = respData['code']
+                if int(status) == 0:
+                    status = 200 + abs(status)
+                elif int(status) < 0:
+                    status = 400 + abs(status)
+                else:
+                    status = 500 + abs(status)
+            if 'message' in respData:
+                msg = respData['message']
+            if 'data' in respData:
+                # data = respData['data']
+                if 'id' in requestJson:
+                    id = requestJson['id']
+                rects = get_ocr_text.jsonToNewJson(respData)
+                # if 'rect' in requestJson:
+                #     rect = requestJson['rect']
+                #     if len(rect) >= 4:
+                #         x1 = rect[0]
+                #         y1 = rect[1]
+                #         x2 = rect[2]
+                #         y2 = rect[3]
+                #         #修改坐标
+                #         for x in range(len(rects)):
+                #             rectDic = rects[x]
+                #             rectDic['x1'] = x1
+                #             rectDic['y1'] = y1
+                #             rectDic['x2'] = x2
+                #             rectDic['y2'] = y2
+                #             rects[x] = rectDic
+                dataDic = {'id' : id, 'rects' : rects}
+                data = str(dataDic)
+            jsonData = {'status': status, 'msg': msg, 'data': data}
+
+        return Response(jsonData)

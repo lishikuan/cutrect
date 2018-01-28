@@ -106,3 +106,8 @@ class OPageSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Group
 #         fields = ('url', 'name')
+
+class OCRDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OCRData
+        fields = '__all__'

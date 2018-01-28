@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 from django.db.models import Q
 
-from .forms import BatchModelForm, ScheduleModelForm
+from .forms import BatchModelForm, ScheduleModelForm,OCRDataModelForm
 
 @xadmin.sites.register(views.website.IndexView)
 class MainDashboard(object):
@@ -70,7 +70,7 @@ class BatchAdmin(object):
 
 @xadmin.sites.register(PageRect)
 class PageRectAdmin(object):
-    list_display = ("id", "page", "line_count", "column_count", "rect_set", "create_date", "batch")
+    list_display = ("id","page", "line_count", "column_count", "rect_set", "create_date", "batch")
     list_display_links = ("id",)
     list_filter = ("page", 'create_date', 'batch')
     search_fields = ["id" ]
@@ -99,6 +99,12 @@ class ScheduleAdmin(object):
     date_hierarchy = 'end_date'
     relfield_style = "fk-select"
     reversion_enable = True
+
+@xadmin.sites.register(OCRData)
+class OCRDataAdmin(object):
+    form = OCRDataModelForm
+    list_display = ('img_url','img_data','status','message', "data")
+
 
 
 # @xadmin.sites.register(Task)

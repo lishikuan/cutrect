@@ -89,11 +89,21 @@ class Batch(models.Model):
         verbose_name_plural = u"批次管理"
         ordering = ('submit_date', 'name')
 
+class OPage(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=64, db_index=True, unique=True, verbose_name=u'原始页编码')
+    s3_inset = models.FileField(max_length=256, blank=True, null=True, verbose_name=u's3地址', upload_to='tripitaka/hans',
+                                storage='storages.backends.s3boto.S3BotoStorage')
+
+    class Meta:
+        verbose_name = u"原始页"
+        verbose_name_plural = u"原始页管理"
+        ordering = ('code', )
 
 class PageRect(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    # page = models.ForeignKey(OPage, null=True, blank=True, related_name='pagerects', on_delete=models.SET_NULL,
-    #                           db_index=True, verbose_name=u'关联页信息')
+    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    page = models.ForeignKey(OPage, null=True, blank=True, related_name='pagerects', on_delete=models.SET_NULL,
+                              db_index=True, verbose_name=u'关联页信息')
     code = models.CharField(max_length=64, null=True, verbose_name=u'关联页ID')
     batch = models.ForeignKey(Batch, null=True, blank=True, related_name='pagerects', on_delete=models.SET_NULL,
                               db_index=True, verbose_name=u'批次') #todo 1204 后续考虑用级联删除.
@@ -310,16 +320,7 @@ class PageTask(Task):
 #         ordering = ('schedule', "task", "word")
 
 
-class OPage(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    code = models.CharField(max_length=64, db_index=True, unique=True, verbose_name=u'原始页编码')
-    s3_inset = models.FileField(max_length=256, blank=True, null=True, verbose_name=u's3地址', upload_to='tripitaka/hans',
-                                storage='storages.backends.s3boto.S3BotoStorage')
 
-    class Meta:
-        verbose_name = u"原始页"
-        verbose_name_plural = u"原始页管理"
-        ordering = ('code', )
 
 
 class OColumn(models.Model):
@@ -348,7 +349,18 @@ class OColumn(models.Model):
 #     def __str__(self):
 #         return "%s Access Record" % self.date.strftime('%Y-%m-%d')
 
+class OCRData(models.Model):
+    img_url = models.FileField(default='')
+    img_data = models.CharField(max_length=2049, blank=True, null=True)
+    message = models.CharField(max_length=256, blank=True, null=True)
+    status = models.IntegerField(blank=True, null=True)
+    data = models.CharField(max_length=2049, blank=True, null=True)
 
+    def __str__(self):
+        return str(self.img_url)
 
+    class Meta:
+        verbose_name = "识别数据"
+        verbose_name_plural = "识别数据管理"
 
 

@@ -9,6 +9,7 @@ from django.views.static import serve #处理静态文件
 from rest_framework import routers
 from rect.views import BatchViewSet, PageRectViewSet, RectViewSet, ScheduleViewSet, CCTaskViewSet, ClassifyTaskViewSet, PageTaskViewSet, OPageViewSet, OColumnViewSet
 from rect.views import CreateScheduleView, UploadBatchView
+import  rect.views as views
 
 import xadmin
 # xadmin.autodiscover()
@@ -33,7 +34,8 @@ router.register(r'ocolumn', OColumnViewSet)
 urlpatterns = [
     url(r'^api/', include(router.urls)),
     url(r'^create_schedule', CreateScheduleView.as_view(), name='create_schedule'),
-    url(r'^upload_batch', UploadBatchView.as_view(), name='upload_batch')
+    url(r'^upload_batch', UploadBatchView.as_view(), name='upload_batch'),
+
 ]
 
 
